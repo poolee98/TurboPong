@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Runtime.CompilerServices;
 
+using TurboPong.Globals;
+
 namespace TurboPong.GameObjects
 {
     internal class Bat : DrawableGameComponent
@@ -11,9 +13,8 @@ namespace TurboPong.GameObjects
         private Rectangle rectangle;
         private Texture2D whitePixel;
 
-        private int batWidth = Globals.batWidth;
-        private int batHeight = Globals.batHeight;
-        private double positionX;
+        private int batWidth = ControlVariables.batWidth;
+        private int batHeight = ControlVariables.batHeight;
         private double positionY;
 
         private Game game;
@@ -34,7 +35,7 @@ namespace TurboPong.GameObjects
 
         public void SetPosition(Position position)
         {
-            rectangle.X = (position == Position.Left) ? 10 : (Globals.PreferredBackBufferWidth - 30);
+            rectangle.X = (position == Position.Left) ? 10 : (ControlVariables.PreferredBackBufferWidth - 30);
         }
 
         public Bat(Game game) : base(game)
@@ -48,8 +49,8 @@ namespace TurboPong.GameObjects
         {
             base.Initialize();
 
-            positionY = (Globals.PreferredBackBufferHeight / 2) - (batHeight / 2);
-            rectangle = new Rectangle((int)positionX, (int)positionY, batWidth, batHeight);
+            positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (batHeight / 2);
+            rectangle = new Rectangle(rectangle.X, (int)positionY, batWidth, batHeight);
         }
 
         public void Move(MoveDirection moveDirection, GameTime gameTime)
@@ -63,7 +64,7 @@ namespace TurboPong.GameObjects
             }
             else
             {
-                if ((positionY + batHeight) < (Globals.PreferredBackBufferHeight - 20))
+                if ((positionY + batHeight) < (ControlVariables.PreferredBackBufferHeight - 20))
                 {
                     positionY += MovementSpeed * gameTime.ElapsedGameTime.TotalMilliseconds;
                 }

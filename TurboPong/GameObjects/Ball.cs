@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using TurboPong.Globals;
 
 namespace TurboPong.GameObjects
 {
@@ -20,25 +22,28 @@ namespace TurboPong.GameObjects
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
         }
 
-        private void RandomizeDirection()
+        private Vector2 RandomizeDirection()
         {
-
+            Random random = new Random();
+            return new Vector2(random.Next(0, ControlVariables.PreferredBackBufferWidth),
+                               random.Next(0, ControlVariables.PreferredBackBufferHeight));
         }
 
         public override void Initialize()
         {
-            base.Initialize();
-
-            ballHeight = ballWidth = Globals.BallSize;         
-            positionX = (Globals.PreferredBackBufferWidth / 2) - (ballWidth / 2);
-            positionY = (Globals.PreferredBackBufferHeight / 2) - (ballHeight / 2);
+            ballHeight = ballWidth = ControlVariables.BallSize;         
+            positionX = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
+            positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
             properBall = new Rectangle(positionX, positionY, ballWidth, ballHeight);
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            base.LoadContent();
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
+
+            base.LoadContent();
         }
 
         public override void Update(GameTime gameTime)
@@ -47,12 +52,12 @@ namespace TurboPong.GameObjects
         }
 
         public override void Draw(GameTime gameTime)
-        {
-            base.Draw(gameTime);
-
+        {      
             spriteBatch.Begin();
             spriteBatch.Draw(whitePixel, properBall, Color.White);
             spriteBatch.End();
+
+            base.Draw(gameTime);
         }
     }
 }

@@ -5,6 +5,8 @@ using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
 using System;
 
+using TurboPong.Globals;
+
 namespace TurboPong
 {
     public class Game1 : Game
@@ -19,8 +21,8 @@ namespace TurboPong
                 IsFullScreen = false,
                 SynchronizeWithVerticalRetrace = true,
                 GraphicsProfile = GraphicsProfile.HiDef,
-                PreferredBackBufferHeight = Globals.PreferredBackBufferHeight,
-                PreferredBackBufferWidth = Globals.PreferredBackBufferWidth
+                PreferredBackBufferHeight = ControlVariables.PreferredBackBufferHeight,
+                PreferredBackBufferWidth = ControlVariables.PreferredBackBufferWidth
             };
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -29,9 +31,9 @@ namespace TurboPong
 
         protected override void Initialize()
         {
-            Components.Add(Globals.screenManager);
-            Globals.LoadMenuScreen(this);
-            
+            Components.Add(SceneManagement.screenManager);
+            SceneManagement.LoadMenuScreen(this);
+   
             base.Initialize();
         }
 
@@ -44,7 +46,6 @@ namespace TurboPong
 
         protected override void Update(GameTime gameTime)
         {
-
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -52,8 +53,7 @@ namespace TurboPong
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.SlateGray);
-
+           
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

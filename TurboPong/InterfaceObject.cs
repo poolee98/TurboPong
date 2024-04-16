@@ -1,17 +1,31 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using System.Text;
 
 namespace TurboPong
 {
+    delegate void OnClickHandler();
+    delegate void OnHover();
+
     internal class InterfaceObject : DrawableGameComponent
     {
         private SpriteBatch spriteBatch;
         private Game game;
 
+        private MouseState mouseState;
+
         public bool IsClickable = false;
+        public event OnClickHandler OnClick;
+        public event OnHover OnHover;
+        public bool ShadowIfHoveredOver = false;
+        private bool hoveredOver = false;
 
         private StringBuilder interfaceText = new StringBuilder("DEFAULT TEXT");
+
+        public Rectangle Bounds;
+
         public string InterfaceText
         {
             set 
@@ -46,9 +60,12 @@ namespace TurboPong
             Giga
         }
 
-        public int Width
+        public Size2 Size
         {
-            get { return interfaceText.Length; }
+            get 
+            {
+                return selectedFont.MeasureString(InterfaceText).ToSize();
+            }
         }
 
         private SpriteFont SetFontSize(FontSize fontSize)
@@ -78,8 +95,10 @@ namespace TurboPong
 
         public override void Initialize()
         {
-            base.Initialize();
             selectedFont = SetFontSize(selectedFontSize);
+            Bounds = new Rectangle(PositionX, PositionY, (int)Size.Width, (int)Size.Height);
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -87,13 +106,52 @@ namespace TurboPong
             base.LoadContent();
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            mouseState = Mouse.GetState();
+
+            if (IsClickable)
+            {
+                if (mouseState.Position.Y >= PositionY && mouseState.Position.Y <= PositionY + Size.Height)
+                {
+                    if (mouseState.Position.X >= PositionX && mouseState.Position.X <= PositionX + Size.Width)
+                    {
+                        hoveredOver = true;
+                        // Fire OnHover event
+                        if (OnHover != null)
+                        {
+                            OnHover();
+                        }
+                        // Fire OnClick event
+                        if (mouseState.LeftButton == ButtonState.Pressed)
+                        {
+                            if (OnClick != null)
+                            {
+                                OnClick();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    hoveredOver = false;
+                }
+            }
+
+            base.Update(gameTime);
+        }
+
         public override void Draw(GameTime gameTime)
         {
-            base.Draw(gameTime);
-
             spriteBatch.Begin();
+            if (ShadowIfHoveredOver && hoveredOver)
+            {
+                spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX + 5, PositionY + 5), Color.Black);
+            }
             spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX, PositionY), TextColor);
             spriteBatch.End();
+
+            base.Draw(gameTime);
         }
 
         protected override void Dispose(bool disposing)
