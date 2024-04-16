@@ -38,6 +38,7 @@ namespace TurboPong.Screens
                 PositionY = ControlVariables.PreferredBackBufferWidth / 10
             };
             MenuTitle.PositionX = (ControlVariables.PreferredBackBufferWidth / 2) - ((int)MenuTitle.Size.Width / 2);
+            MenuTitle.TextColor = Color.NavajoWhite;
             game.Components.Add(MenuTitle);
             // <--------------------------------- Start Button ---------------------------------> //
             StartButton = new InterfaceObject(game)

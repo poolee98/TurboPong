@@ -13,8 +13,11 @@ namespace TurboPong.GameObjects
         private Texture2D whitePixel;
         private Rectangle properBall;
 
-        private int positionX, positionY;
+        //private int positionX, position.Y;
         private int ballWidth, ballHeight;
+
+        private Vector2 direction;
+        private Vector2 position = new Vector2();
 
         public Ball(Game game) : base(game)
         {
@@ -22,19 +25,27 @@ namespace TurboPong.GameObjects
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
         }
 
-        private Vector2 RandomizeDirection()
+        private Vector2 RandomPointOnMap()
         {
             Random random = new Random();
             return new Vector2(random.Next(0, ControlVariables.PreferredBackBufferWidth),
                                random.Next(0, ControlVariables.PreferredBackBufferHeight));
         }
 
+        public void RestartPosition()
+        {
+            position.X = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
+            position.Y = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
+            direction = RandomPointOnMap() - position;
+        }
+
         public override void Initialize()
         {
-            ballHeight = ballWidth = ControlVariables.BallSize;         
-            positionX = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
-            positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
-            properBall = new Rectangle(positionX, positionY, ballWidth, ballHeight);
+            ballHeight = ballWidth = ControlVariables.BallSize;
+            properBall = new Rectangle();
+            properBall.Width = ballWidth;
+            properBall.Height = ballHeight;
+            RestartPosition();
 
             base.Initialize();
         }
@@ -48,6 +59,16 @@ namespace TurboPong.GameObjects
 
         public override void Update(GameTime gameTime)
         {
+            properBall.X = (int)position.X;
+            properBall.Y = (int)position.Y;
+
+
+            if (direction != Vector2.Zero)
+            {
+                direction.Normalize();
+                position += direction * gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+
             base.Update(gameTime);
         }
 
