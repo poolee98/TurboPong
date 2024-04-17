@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using TurboPong.Controller;
 using TurboPong.Globals;
 
 namespace TurboPong.GameObjects
@@ -16,6 +17,9 @@ namespace TurboPong.GameObjects
         //private int positionX, position.Y;
         private int ballWidth, ballHeight;
 
+        private IPlayer player1;
+        private IPlayer player2;
+
         private Vector2 direction;
         private Vector2 position = new Vector2();
 
@@ -23,6 +27,12 @@ namespace TurboPong.GameObjects
         {
             this.game = game;
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
+        }
+
+        public void SetPlayersToColide(IPlayer playerToTheLeft, IPlayer playerToTheRight)
+        {
+            this.player1 = playerToTheLeft;
+            this.player2 = playerToTheRight; 
         }
 
         private Vector2 RandomPointOnMap()
@@ -46,14 +56,12 @@ namespace TurboPong.GameObjects
             properBall.Width = ballWidth;
             properBall.Height = ballHeight;
             RestartPosition();
-
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
-
             base.LoadContent();
         }
 
@@ -62,11 +70,38 @@ namespace TurboPong.GameObjects
             properBall.X = (int)position.X;
             properBall.Y = (int)position.Y;
 
+            // Bounce off top and bottom
+            if (properBall.Y <= 0 || properBall.Y >= ControlVariables.PreferredBackBufferHeight - properBall.Height)
+            {
+                direction.Y = (-direction.Y);
+            }
 
             if (direction != Vector2.Zero)
             {
-                direction.Normalize();
-                position += direction * gameTime.ElapsedGameTime.TotalMilliseconds;
+                position += direction * ControlVariables.BallDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            // TODO: FIX COLLISIONS
+            // Bounce off player's bat's 
+            // Player 1
+            if (properBall.X + properBall.Width <= player1.BatPosition.X + ControlVariables.batWidth)
+            {
+                if (properBall.Y >= player1.BatPosition.Y && properBall.Y <= player1.BatPosition.Y + ControlVariables.batHeight)
+                {
+                    Console.WriteLine("Collision with player to the left");
+                    direction.X = (-direction.X);
+                    direction.Y = (-direction.Y);
+                }
+            }
+            // Player2
+            if (properBall.X > player2.BatPosition.X)
+            {
+                if (properBall.Y >= player2.BatPosition.Y && properBall.Y <= player2.BatPosition.Y + ControlVariables.batHeight)
+                {
+                    Console.WriteLine("Collision with player to the right!");
+                    direction.X = (-direction.X);
+                    direction.Y = (-direction.Y);
+                }
             }
 
             base.Update(gameTime);

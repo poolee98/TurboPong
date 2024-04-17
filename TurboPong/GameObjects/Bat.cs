@@ -1,25 +1,28 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Runtime.CompilerServices;
-
+using TurboPong.Controller;
 using TurboPong.Globals;
 
 namespace TurboPong.GameObjects
 {
     internal class Bat : DrawableGameComponent
-    {
+    { 
         private SpriteBatch spriteBatch;
         private Rectangle rectangle;
         private Texture2D whitePixel;
 
         private int batWidth = ControlVariables.batWidth;
         private int batHeight = ControlVariables.batHeight;
-        private double positionY;
+        private float positionY;
 
         private Game game;
 
-        public double MovementSpeed = 0.3;
+        public float MovementSpeed = 0.3f;
+
+        public Vector2 BatPosition
+        {
+            get { return new Vector2(rectangle.X, positionY); }
+        }
 
         public enum MoveDirection
         {
@@ -42,15 +45,14 @@ namespace TurboPong.GameObjects
         {
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
             this.game = game;
-
         }
 
         public override void Initialize()
         {
-            base.Initialize();
-
             positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (batHeight / 2);
             rectangle = new Rectangle(rectangle.X, (int)positionY, batWidth, batHeight);
+
+            base.Initialize();
         }
 
         public void Move(MoveDirection moveDirection, GameTime gameTime)
@@ -59,14 +61,14 @@ namespace TurboPong.GameObjects
             {
                 if (positionY > 20)
                 {
-                    positionY -= MovementSpeed * gameTime.ElapsedGameTime.TotalMilliseconds;
+                    positionY -= MovementSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }            
             }
             else
             {
                 if ((positionY + batHeight) < (ControlVariables.PreferredBackBufferHeight - 20))
                 {
-                    positionY += MovementSpeed * gameTime.ElapsedGameTime.TotalMilliseconds;
+                    positionY += MovementSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
             }
         }

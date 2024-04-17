@@ -1,11 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Screens;
 using TurboPong.Globals;
-using static TurboPong.GameObjects.Bat;
 
 namespace TurboPong.Screens
 {
@@ -94,14 +91,14 @@ namespace TurboPong.Screens
             base.LoadContent();
         }
 
-        public override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.SlateGray);
-        }
-
         public override void Update(GameTime gameTime)
         {
 
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.SlateGray);
         }
 
         public override void Dispose()

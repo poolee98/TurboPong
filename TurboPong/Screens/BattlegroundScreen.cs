@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Screens;
+using TurboPong.Controller;
 using TurboPong.Globals;
 
 namespace TurboPong.Screens
@@ -11,9 +12,10 @@ namespace TurboPong.Screens
     {
         private Game game;
         private KeyboardState keyboardState;
+        private KeyboardState previousKeyboardState;
 
-        private GameObjects.Bat player1;
-        private GameObjects.Bat player2;
+        private Human humanPlayer1;
+        private Human humanPlayer2;
         private GameObjects.Ball ball;
 
         private ContentManager battlegroundContentManager;
@@ -27,15 +29,18 @@ namespace TurboPong.Screens
 
         public override void Initialize()
         {
-            player1 = new GameObjects.Bat(game);
-            game.Components.Add(player1);
-            player1.SetPosition(GameObjects.Bat.Position.Right);
+            keyboardState = Keyboard.GetState();
+            previousKeyboardState = keyboardState;
 
-            player2 = new GameObjects.Bat(game);
-            game.Components.Add(player2);
-            player2.SetPosition(GameObjects.Bat.Position.Left);
+            humanPlayer1 = new Human(IPlayer.Position.Right, game);
+            humanPlayer1.Initialize();
+
+            humanPlayer2 = new Human(IPlayer.Position.Left, game);
+            humanPlayer2.PlayerIndex = 2;
+            humanPlayer2.Initialize();
 
             ball = new GameObjects.Ball(game);
+            ball.SetPlayersToColide(humanPlayer2, humanPlayer1);
             game.Components.Add(ball);
 
             base.Initialize();
@@ -46,24 +51,32 @@ namespace TurboPong.Screens
             base.LoadContent();
         }
 
+        private bool WasKeyPressed(Keys key)
+        {
+            if (keyboardState.IsKeyUp(key) && previousKeyboardState.IsKeyDown(key))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
+            humanPlayer1.Update(gameTime);
+            humanPlayer2.Update(gameTime);
 
-            if (keyboardState.IsKeyDown(Keys.Down))
-            {
-                player1.Move(GameObjects.Bat.MoveDirection.Down, gameTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Up))
-            {
-                player1.Move(GameObjects.Bat.MoveDirection.Up, gameTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Escape))
+            if (WasKeyPressed(Keys.Escape))
             {
                 SceneManagement.LoadMenuScreen(game);
             }
+
+            if (WasKeyPressed(Keys.Space))
+            {
+                ball.RestartPosition();
+            }
+
+            previousKeyboardState = keyboardState; 
         }
         public override void Draw(GameTime gameTime)
         {
