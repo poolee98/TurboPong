@@ -1,16 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Screens;
 using TurboPong.Controller;
-using TurboPong.Globals;
 
 namespace TurboPong.Screens
 {
     internal class BattlegroundScreen : GameScreen
     {
-        private Game game;
+        private new Game1 game => (Game1)base.Game;
         private KeyboardState keyboardState;
         private KeyboardState previousKeyboardState;
 
@@ -18,14 +16,7 @@ namespace TurboPong.Screens
         private Human humanPlayer2;
         private GameObjects.Ball ball;
 
-        private ContentManager battlegroundContentManager;
-
-        public BattlegroundScreen(Game game) : base(game)
-        {
-            this.game = game;
-            battlegroundContentManager = new ContentManager(Content.ServiceProvider, Content.RootDirectory);
-            this.game.Content = battlegroundContentManager;
-        }
+        public BattlegroundScreen(Game game) : base(game) { }
 
         public override void Initialize()
         {
@@ -41,34 +32,39 @@ namespace TurboPong.Screens
 
             ball = new GameObjects.Ball(game);
             ball.SetPlayersToColide(humanPlayer2, humanPlayer1);
-            game.Components.Add(ball);
-
+  
             base.Initialize();
         }
 
         public override void LoadContent()
         {
+            game.AddComponent(ball);
+            humanPlayer1.LoadContent();
+            humanPlayer2.LoadContent();
             base.LoadContent();
+        }
+
+        public override void UnloadContent()
+        {
+            game.RemoveComponent(ball);
+            humanPlayer1.UnloadContent();
+            humanPlayer2.UnloadContent();
+            base.UnloadContent();
         }
 
         private bool WasKeyPressed(Keys key)
         {
-            if (keyboardState.IsKeyUp(key) && previousKeyboardState.IsKeyDown(key))
-            {
-                return true;
-            }
-            return false;
+            return (keyboardState.IsKeyUp(key) && previousKeyboardState.IsKeyDown(key) ? true : false);
         }
 
         public override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            humanPlayer1.Update(gameTime);
-            humanPlayer2.Update(gameTime);
 
             if (WasKeyPressed(Keys.Escape))
             {
-                SceneManagement.LoadMenuScreen(game);
+                UnloadContent();
+                game.LoadMenuScreen();          
             }
 
             if (WasKeyPressed(Keys.Space))
@@ -81,13 +77,8 @@ namespace TurboPong.Screens
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-        }
-
-        public override void Dispose()
-        {
-            battlegroundContentManager.Unload();
-            battlegroundContentManager.Dispose();
-            base.Dispose();
+            humanPlayer1.Update(gameTime);
+            humanPlayer2.Update(gameTime);
         }
     }
 }

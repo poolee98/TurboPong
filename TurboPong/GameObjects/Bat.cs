@@ -6,16 +6,14 @@ using TurboPong.Globals;
 namespace TurboPong.GameObjects
 {
     internal class Bat : DrawableGameComponent
-    { 
-        private SpriteBatch spriteBatch;
+    {
+        private new Game1 game => (Game1)base.Game;
         private Rectangle rectangle;
         private Texture2D whitePixel;
 
         private int batWidth = ControlVariables.batWidth;
         private int batHeight = ControlVariables.batHeight;
         private float positionY;
-
-        private Game game;
 
         public float MovementSpeed = 0.3f;
 
@@ -41,17 +39,12 @@ namespace TurboPong.GameObjects
             rectangle.X = (position == Position.Left) ? 10 : (ControlVariables.PreferredBackBufferWidth - 30);
         }
 
-        public Bat(Game game) : base(game)
-        {
-            spriteBatch = new SpriteBatch(game.GraphicsDevice);
-            this.game = game;
-        }
+        public Bat(Game game) : base(game) { }
 
         public override void Initialize()
         {
             positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (batHeight / 2);
             rectangle = new Rectangle(rectangle.X, (int)positionY, batWidth, batHeight);
-
             base.Initialize();
         }
 
@@ -75,24 +68,28 @@ namespace TurboPong.GameObjects
 
         protected override void LoadContent()
         {
-            base.LoadContent();
-
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
+            base.LoadContent();
+        }
+
+        protected override void UnloadContent()
+        {
+            game.Content.UnloadAsset("WhitePixel");
+            base.UnloadContent();
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
             rectangle.Y = (int)positionY;
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
         {
+            game.spriteBatch.Begin(SpriteSortMode.BackToFront);
+            game.spriteBatch.Draw(whitePixel, new Rectangle(rectangle.X, rectangle.Y, batWidth, batHeight), Color.Turquoise);
+            game.spriteBatch.End();        
             base.Draw(gameTime);
-
-            spriteBatch.Begin();
-            spriteBatch.Draw(whitePixel, rectangle, Color.Turquoise);
-            spriteBatch.End();
         }
     }
 }

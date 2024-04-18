@@ -11,12 +11,62 @@ namespace TurboPong
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
+        public GraphicsDeviceManager graphics;
+        public SpriteBatch spriteBatch;
+
+        // <------------------------------------------- Screen management -------------------------------------------> //
+        public ScreenManager screenManager = new ScreenManager();
+
+        private bool LoadMenuWithTransition = false;
+        private Screens.BattlegroundScreen battlegroundScreen;
+        private Screens.MenuScreen menuScreen;
+        private Screens.GametypeScreen gameTypeScreen;
+        private bool isMenuScreenLoaded = false;
+        private bool isBattleGroundMenuLoaded = false;
+
+        public void LoadGameScreen()
+        {
+            screenManager.LoadScreen(battlegroundScreen, new ExpandTransition(GraphicsDevice, Color.Black));
+            isBattleGroundMenuLoaded = true;
+
+            if (isMenuScreenLoaded)
+            {
+                GraphicsDevice.Clear(Color.Transparent);
+                menuScreen.UnloadContent();
+                isMenuScreenLoaded = false;
+            }
+        }
+
+        public void LoadChooseGameType(Game game)
+        {
+            screenManager.LoadScreen(gameTypeScreen);
+        }
+
+        public void LoadMenuScreen()
+        {
+            if (LoadMenuWithTransition)
+            {
+                screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.Black));
+            }
+            else
+            {
+                screenManager.LoadScreen(menuScreen);
+                LoadMenuWithTransition = true;
+            }
+            isMenuScreenLoaded = true;
+
+            if (isBattleGroundMenuLoaded)
+            {
+                battlegroundScreen.Dispose();
+                battlegroundScreen.UnloadContent();
+                isBattleGroundMenuLoaded = false;
+            }
+        }
+        // <------------------------------------------- End of screen management -------------------------------------------> //
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this)
+            graphics = new GraphicsDeviceManager(this)
             {
                 IsFullScreen = false,
                 SynchronizeWithVerticalRetrace = true,
@@ -29,19 +79,36 @@ namespace TurboPong
             IsFixedTimeStep = false;
         }
 
+        public void AddComponent(IGameComponent component)
+        {
+            if (!Components.Contains(component))
+            {
+                Components.Add(component);
+            }
+        }
+
+        public void RemoveComponent(IGameComponent component)
+        {
+            if (Components.Contains(component))
+            {
+                Components.Remove(component);
+            }
+        }
+
         protected override void Initialize()
         {
-            Components.Add(SceneManagement.screenManager);
-            SceneManagement.LoadMenuScreen(this);
+            battlegroundScreen = new Screens.BattlegroundScreen(this);
+            gameTypeScreen = new Screens.GametypeScreen(this);
+            menuScreen = new Screens.MenuScreen(this);
+            AddComponent(screenManager);
+            LoadMenuScreen();
    
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            spriteBatch = new SpriteBatch(GraphicsDevice);  
         }
 
         protected override void Update(GameTime gameTime)
@@ -53,7 +120,6 @@ namespace TurboPong
 
         protected override void Draw(GameTime gameTime)
         {
-           
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

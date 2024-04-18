@@ -8,9 +8,9 @@ namespace TurboPong.Controller
     {
         private IPlayer.Position _playerPosition;
         private int _points;
+        private new Game1 game;
 
         private Bat bat;
-        private Game game;
 
         public Vector2 BatPosition
         {
@@ -60,7 +60,7 @@ namespace TurboPong.Controller
         public Human(IPlayer.Position position, Game game)
         {
             PlayerPosition = position;
-            this.game = game;
+            this.game = (Game1)game;
         }
 
         public void Initialize()
@@ -74,13 +74,22 @@ namespace TurboPong.Controller
             {
                 bat.SetPosition(Bat.Position.Right);
             }
-            game.Components.Add(bat);
 
             if (_playerIndex == 2)
             {
                 keyUp = Keys.W;
                 keyDown = Keys.S;
             } 
+        }
+
+        public void LoadContent()
+        {
+            game.AddComponent(bat);
+        }
+
+        public void UnloadContent()
+        {
+            game.RemoveComponent(bat);
         }
 
         public void Update(GameTime gameTime)

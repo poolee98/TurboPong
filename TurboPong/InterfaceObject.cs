@@ -9,10 +9,9 @@ namespace TurboPong
     delegate void OnClickHandler();
     delegate void OnHover();
 
-    internal class InterfaceObject : DrawableGameComponent
+    internal class InterfaceObject
     {
-        private SpriteBatch spriteBatch;
-        private Game game;
+        private new Game1 game;
 
         private MouseState mouseState;
 
@@ -85,28 +84,17 @@ namespace TurboPong
                     selectedFontSize = FontSize.Small;
                     return selectedFont = game.Content.Load<SpriteFont>("ARCADECLASSIC_Small");
             }
+
         }
 
-        public InterfaceObject(Game game) : base(game)
+        public InterfaceObject(Game game) 
         {
-            this.game = game;
-            spriteBatch = new SpriteBatch(game.GraphicsDevice);
-        }
-
-        public override void Initialize()
-        {
+            this.game = (Game1)game;
             selectedFont = SetFontSize(selectedFontSize);
             Bounds = new Rectangle(PositionX, PositionY, (int)Size.Width, (int)Size.Height);
-
-            base.Initialize();
         }
 
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-        }
-
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             mouseState = Mouse.GetState();
 
@@ -138,26 +126,14 @@ namespace TurboPong
                 }
             }
 
-            base.Update(gameTime);
         }
-
-        public override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
             if (ShadowIfHoveredOver && hoveredOver)
             {
-                spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX + 5, PositionY + 5), Color.Black);
+                game.spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX + 5, PositionY + 5), Color.Black);
             }
-            spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX, PositionY), TextColor);
-            spriteBatch.End();
-
-            base.Draw(gameTime);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            interfaceText.Clear();
-            base.Dispose(disposing);
+            game.spriteBatch.DrawString(selectedFont, InterfaceText, new Vector2(PositionX, PositionY), TextColor);
         }
     }
 }

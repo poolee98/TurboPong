@@ -8,22 +8,16 @@ namespace TurboPong.Screens
 {
     internal class MenuScreen : GameScreen
     {      
-        private SpriteBatch spriteBatch;
-        private Game game;
-        private ContentManager menuScreenContentManager;
+        private new Game1 game => (Game1)base.Game;
 
         private InterfaceObject MenuTitle;
         private InterfaceObject StartButton;
         private InterfaceObject SettingsButton;
         private InterfaceObject ExitButton;
 
-        public MenuScreen(Game game) : base(game)
-        {
-            spriteBatch = new SpriteBatch(game.GraphicsDevice);
-            menuScreenContentManager = new ContentManager(Content.ServiceProvider, Content.RootDirectory);
-            this.game = game;
-            this.game.Content = menuScreenContentManager;
-        }
+        private bool IsMenuScreenLoaded = true;
+
+        public MenuScreen(Game game) : base(game) { }
 
         public override void Initialize()
         {
@@ -36,7 +30,6 @@ namespace TurboPong.Screens
             };
             MenuTitle.PositionX = (ControlVariables.PreferredBackBufferWidth / 2) - ((int)MenuTitle.Size.Width / 2);
             MenuTitle.TextColor = Color.NavajoWhite;
-            game.Components.Add(MenuTitle);
             // <--------------------------------- Start Button ---------------------------------> //
             StartButton = new InterfaceObject(game)
             {
@@ -49,9 +42,9 @@ namespace TurboPong.Screens
             StartButton.ShadowIfHoveredOver = true;
             StartButton.OnClick += () =>
             {
-                SceneManagement.LoadGameScreen(game);
+                game.LoadGameScreen();
+                //SceneManagement.LoadChooseGameType(game);
             };
-            game.Components.Add(StartButton);
             // <--------------------------------- Settings button ---------------------------------> //
             SettingsButton = new InterfaceObject(game)
             {
@@ -66,7 +59,6 @@ namespace TurboPong.Screens
             {
                 SettingsButton.TextColor = Color.Red;
             };
-            game.Components.Add(SettingsButton);
             // <--------------------------------- Exit Button ---------------------------------> //
             ExitButton = new InterfaceObject(game)
             {
@@ -81,8 +73,6 @@ namespace TurboPong.Screens
             { 
                 game.Exit();
             };
-            game.Components.Add(ExitButton);
-
             base.Initialize();
         }
 
@@ -91,21 +81,30 @@ namespace TurboPong.Screens
             base.LoadContent();
         }
 
-        public override void Update(GameTime gameTime)
+        public override void UnloadContent()
         {
 
+            base.UnloadContent();
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            MenuTitle.Update(gameTime);
+            ExitButton.Update(gameTime);
+            SettingsButton.Update(gameTime);
+            StartButton.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.SlateGray);
+            game.GraphicsDevice.Clear(Color.SlateGray);
+            game.spriteBatch.Begin();
+                MenuTitle.Draw(gameTime);
+                ExitButton.Draw(gameTime);
+                SettingsButton.Draw(gameTime);
+                StartButton.Draw(gameTime);
+            game.spriteBatch.End();
         }
 
-        public override void Dispose()
-        {
-            menuScreenContentManager.Unload();
-            menuScreenContentManager.Dispose();
-            base.Dispose();
-        }
     }
 }

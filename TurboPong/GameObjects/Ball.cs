@@ -8,8 +8,7 @@ namespace TurboPong.GameObjects
 {
     internal class Ball : DrawableGameComponent
     {
-        private Game game;
-        private SpriteBatch spriteBatch;
+        private new Game1 game => (Game1)base.Game;
 
         private Texture2D whitePixel;
         private Rectangle properBall;
@@ -23,16 +22,12 @@ namespace TurboPong.GameObjects
         private Vector2 direction;
         private Vector2 position = new Vector2();
 
-        public Ball(Game game) : base(game)
-        {
-            this.game = game;
-            spriteBatch = new SpriteBatch(game.GraphicsDevice);
-        }
+        public Ball(Game game) : base(game) { }
 
         public void SetPlayersToColide(IPlayer playerToTheLeft, IPlayer playerToTheRight)
         {
-            this.player1 = playerToTheLeft;
-            this.player2 = playerToTheRight; 
+            player1 = playerToTheLeft;
+            player2 = playerToTheRight; 
         }
 
         private Vector2 RandomPointOnMap()
@@ -63,6 +58,12 @@ namespace TurboPong.GameObjects
         {
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
             base.LoadContent();
+        }
+
+        protected override void UnloadContent()
+        {
+            game.Content.UnloadAsset("WhitePixel");
+            base.UnloadContent();
         }
 
         public override void Update(GameTime gameTime)
@@ -108,11 +109,10 @@ namespace TurboPong.GameObjects
         }
 
         public override void Draw(GameTime gameTime)
-        {      
-            spriteBatch.Begin();
-            spriteBatch.Draw(whitePixel, properBall, Color.White);
-            spriteBatch.End();
-
+        {
+            game.spriteBatch.Begin();
+            game.spriteBatch.Draw(whitePixel, properBall, Color.White);
+            game.spriteBatch.End();
             base.Draw(gameTime);
         }
     }
