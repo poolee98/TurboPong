@@ -82,27 +82,17 @@ namespace TurboPong.GameObjects
                 position += direction * ControlVariables.BallDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            // TODO: FIX COLLISIONS
-            // Bounce off player's bat's 
-            // Player 1
-            if (properBall.X + properBall.Width <= player1.BatPosition.X + ControlVariables.batWidth)
+            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
             {
-                if (properBall.Y >= player1.BatPosition.Y && properBall.Y <= player1.BatPosition.Y + ControlVariables.batHeight)
-                {
-                    Console.WriteLine("Collision with player to the left");
-                    direction.X = (-direction.X);
-                    direction.Y = (-direction.Y);
-                }
+                Console.WriteLine("Ball contact player 1!");
+                properBall.X = 500;
+                direction.X = -direction.X;
             }
-            // Player2
-            if (properBall.X > player2.BatPosition.X)
+
+            if (properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
             {
-                if (properBall.Y >= player2.BatPosition.Y && properBall.Y <= player2.BatPosition.Y + ControlVariables.batHeight)
-                {
-                    Console.WriteLine("Collision with player to the right!");
-                    direction.X = (-direction.X);
-                    direction.Y = (-direction.Y);
-                }
+                Console.WriteLine("Ball contact player 2!");
+                direction.X = -direction.X;
             }
 
             base.Update(gameTime);

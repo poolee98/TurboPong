@@ -17,50 +17,23 @@ namespace TurboPong
         // <------------------------------------------- Screen management -------------------------------------------> //
         public ScreenManager screenManager = new ScreenManager();
 
-        private bool LoadMenuWithTransition = false;
         private Screens.BattlegroundScreen battlegroundScreen;
         private Screens.MenuScreen menuScreen;
         private Screens.GametypeScreen gameTypeScreen;
-        private bool isMenuScreenLoaded = false;
-        private bool isBattleGroundMenuLoaded = false;
 
         public void LoadGameScreen()
         {
             screenManager.LoadScreen(battlegroundScreen, new ExpandTransition(GraphicsDevice, Color.Black));
-            isBattleGroundMenuLoaded = true;
-
-            if (isMenuScreenLoaded)
-            {
-                GraphicsDevice.Clear(Color.Transparent);
-                menuScreen.UnloadContent();
-                isMenuScreenLoaded = false;
-            }
         }
 
-        public void LoadChooseGameType(Game game)
+        public void LoadChooseGameType()
         {
-            screenManager.LoadScreen(gameTypeScreen);
+            screenManager.LoadScreen(gameTypeScreen, new FadeTransition(GraphicsDevice, Color.SlateGray));
         }
 
         public void LoadMenuScreen()
         {
-            if (LoadMenuWithTransition)
-            {
-                screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.Black));
-            }
-            else
-            {
-                screenManager.LoadScreen(menuScreen);
-                LoadMenuWithTransition = true;
-            }
-            isMenuScreenLoaded = true;
-
-            if (isBattleGroundMenuLoaded)
-            {
-                battlegroundScreen.Dispose();
-                battlegroundScreen.UnloadContent();
-                isBattleGroundMenuLoaded = false;
-            }
+            screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.Black));
         }
         // <------------------------------------------- End of screen management -------------------------------------------> //
 

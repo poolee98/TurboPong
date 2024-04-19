@@ -7,7 +7,6 @@ namespace TurboPong.Controller
         public int Points { get; set; } 
         public Position PlayerPosition { get; set; }
         public PlayerType playerType { get; }
-
         public Vector2 BatPosition { get; }
         
         public enum Position

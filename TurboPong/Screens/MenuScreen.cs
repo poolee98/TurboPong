@@ -42,8 +42,7 @@ namespace TurboPong.Screens
             StartButton.ShadowIfHoveredOver = true;
             StartButton.OnClick += () =>
             {
-                game.LoadGameScreen();
-                //SceneManagement.LoadChooseGameType(game);
+                game.LoadChooseGameType();
             };
             // <--------------------------------- Settings button ---------------------------------> //
             SettingsButton = new InterfaceObject(game)
