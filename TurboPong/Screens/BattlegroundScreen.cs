@@ -2,7 +2,10 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Screens;
+using System.Threading;
 using TurboPong.Controller;
+using TurboPong.GameObjects;
+using TurboPong.Globals;
 
 namespace TurboPong.Screens
 {
@@ -12,9 +15,14 @@ namespace TurboPong.Screens
         private KeyboardState keyboardState;
         private KeyboardState previousKeyboardState;
 
-        private Human humanPlayer1;
-        private Human humanPlayer2;
-        private GameObjects.Ball ball;
+        private Human humanPlayerOne;
+        private Human humanPlayerTwo;
+        private Ball ball;
+
+        private InterfaceObject playerOneScore;
+        private InterfaceObject playerTwoScore;
+
+        private Lines lines;
 
         public BattlegroundScreen(Game game) : base(game) { }
 
@@ -23,15 +31,35 @@ namespace TurboPong.Screens
             keyboardState = Keyboard.GetState();
             previousKeyboardState = keyboardState;
 
-            humanPlayer1 = new Human(IPlayer.Position.Right, game);
-            humanPlayer1.Initialize();
+            lines = new Lines(game);
+            game.AddComponent(lines);
 
-            humanPlayer2 = new Human(IPlayer.Position.Left, game);
-            humanPlayer2.PlayerIndex = 2;
-            humanPlayer2.Initialize();
+            humanPlayerOne = new Human(IPlayer.Position.Right, game);
+            humanPlayerOne.Initialize();
+
+            humanPlayerTwo = new Human(IPlayer.Position.Left, game);
+            humanPlayerTwo.PlayerIndex = 2;
+            humanPlayerTwo.Initialize();
+
+            playerOneScore = new InterfaceObject(game)
+            {
+                InterfaceFontSize = InterfaceObject.FontSize.Small,
+                TextColor = Color.White,
+                PositionY = 5,
+            };
+            playerOneScore.PositionX = ControlVariables.PreferredBackBufferWidth - (int)(playerOneScore.Size.Width / 1.5f);
+
+            playerTwoScore = new InterfaceObject(game)
+            {
+                InterfaceFontSize = InterfaceObject.FontSize.Small,
+                TextColor = Color.White,
+                PositionY = 5,
+            };
+            playerTwoScore.PositionX = 10;
+
 
             ball = new GameObjects.Ball(game);
-            ball.SetPlayersToColide(humanPlayer2, humanPlayer1);
+            ball.SetPlayersToColide(humanPlayerTwo, humanPlayerOne);
   
             base.Initialize();
         }
@@ -39,16 +67,17 @@ namespace TurboPong.Screens
         public override void LoadContent()
         {
             game.AddComponent(ball);
-            humanPlayer1.LoadContent();
-            humanPlayer2.LoadContent();
+            humanPlayerOne.LoadContent();
+            humanPlayerTwo.LoadContent();
             base.LoadContent();
         }
 
         public override void UnloadContent()
         {
             game.RemoveComponent(ball);
-            humanPlayer1.UnloadContent();
-            humanPlayer2.UnloadContent();
+            game.RemoveComponent(lines);
+            humanPlayerOne.UnloadContent();
+            humanPlayerTwo.UnloadContent();
             base.UnloadContent();
         }
 
@@ -72,13 +101,23 @@ namespace TurboPong.Screens
                 ball.RestartPosition();
             }
 
-            previousKeyboardState = keyboardState; 
+            previousKeyboardState = keyboardState;
+
+            playerOneScore.InterfaceText = "Score " + humanPlayerOne.Points;
+            playerTwoScore.InterfaceText = "Score " + humanPlayerTwo.Points;
+
+            humanPlayerOne.Update(gameTime);
+            humanPlayerTwo.Update(gameTime);
+            playerOneScore.Update(gameTime);
+            playerTwoScore.Update(gameTime);
         }
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            humanPlayer1.Update(gameTime);
-            humanPlayer2.Update(gameTime);
+            game.spriteBatch.Begin();
+            playerOneScore.Draw(gameTime);
+            playerTwoScore.Draw(gameTime);
+            game.spriteBatch.End();
         }
     }
 }

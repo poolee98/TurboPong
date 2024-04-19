@@ -22,6 +22,10 @@ namespace TurboPong.GameObjects
         private Vector2 direction;
         private Vector2 position = new Vector2();
 
+        private bool wasShotLeft = true;
+
+        private float ballSpeed = ControlVariables.BallDefaultSpeed;
+
         public Ball(Game game) : base(game) { }
 
         public void SetPlayersToColide(IPlayer playerToTheLeft, IPlayer playerToTheRight)
@@ -33,8 +37,13 @@ namespace TurboPong.GameObjects
         private Vector2 RandomPointOnMap()
         {
             Random random = new Random();
-            return new Vector2(random.Next(0, ControlVariables.PreferredBackBufferWidth),
-                               random.Next(0, ControlVariables.PreferredBackBufferHeight));
+
+            int x = wasShotLeft ? 0 : ControlVariables.PreferredBackBufferWidth;
+            wasShotLeft = !wasShotLeft;
+
+            int y = random.Next(2 * (ControlVariables.PreferredBackBufferHeight / 9), 7* (ControlVariables.PreferredBackBufferHeight / 9));
+
+            return new Vector2(x, y);
         }
 
         public void RestartPosition()
@@ -42,6 +51,8 @@ namespace TurboPong.GameObjects
             position.X = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
             position.Y = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
             direction = RandomPointOnMap() - position;
+
+            ballSpeed = ControlVariables.BallDefaultSpeed;
         }
 
         public override void Initialize()
@@ -51,6 +62,7 @@ namespace TurboPong.GameObjects
             properBall.Width = ballWidth;
             properBall.Height = ballHeight;
             RestartPosition();
+            player2.Points = -1;
             base.Initialize();
         }
 
@@ -72,6 +84,7 @@ namespace TurboPong.GameObjects
                 properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
             {
                 direction.X = -direction.X;
+                ballSpeed *= 1.1f;
             }
 
             // Bounce off top and bottom
@@ -82,7 +95,19 @@ namespace TurboPong.GameObjects
 
             if (direction != Vector2.Zero)
             {
-                position += direction * ControlVariables.BallDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position += direction * ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            if (properBall.X <= 0)
+            {
+                player2.Points++;
+                RestartPosition();
+            }
+
+            if (properBall.X >= ControlVariables.PreferredBackBufferWidth)
+            {
+                player1.Points++;
+                RestartPosition();
             }
 
             properBall.X = (int)position.X;

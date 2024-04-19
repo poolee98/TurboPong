@@ -15,8 +15,6 @@ namespace TurboPong.GameObjects
         private int batHeight = ControlVariables.batHeight;
         private float positionY;
 
-        public float MovementSpeed = 0.3f;
-
         public Vector2 BatPosition
         {
             get { return new Vector2(rectangle.X, positionY); }
@@ -54,14 +52,14 @@ namespace TurboPong.GameObjects
             {
                 if (positionY > 20)
                 {
-                    positionY -= MovementSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    positionY -= ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }            
             }
             else
             {
                 if ((positionY + batHeight) < (ControlVariables.PreferredBackBufferHeight - 20))
                 {
-                    positionY += MovementSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    positionY += ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
             }
         }
