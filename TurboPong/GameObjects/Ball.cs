@@ -68,8 +68,11 @@ namespace TurboPong.GameObjects
 
         public override void Update(GameTime gameTime)
         {
-            properBall.X = (int)position.X;
-            properBall.Y = (int)position.Y;
+            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)) ||
+                properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
+            {
+                direction.X = -direction.X;
+            }
 
             // Bounce off top and bottom
             if (properBall.Y <= 0 || properBall.Y >= ControlVariables.PreferredBackBufferHeight - properBall.Height)
@@ -82,18 +85,8 @@ namespace TurboPong.GameObjects
                 position += direction * ControlVariables.BallDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
-            {
-                Console.WriteLine("Ball contact player 1!");
-                properBall.X = 500;
-                direction.X = -direction.X;
-            }
-
-            if (properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
-            {
-                Console.WriteLine("Ball contact player 2!");
-                direction.X = -direction.X;
-            }
+            properBall.X = (int)position.X;
+            properBall.Y = (int)position.Y;
 
             base.Update(gameTime);
         }
