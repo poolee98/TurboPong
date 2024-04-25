@@ -41,12 +41,12 @@ namespace TurboPong.Screens
             againstPlayer.ShadowIfHoveredOver = true;
             againstPlayer.OnClick += () =>
             {
-                game.LoadGameScreen();
+                game.LoadGameScreen(false);
             };
 
             againstBot = new InterfaceObject(game)
             {
-                InterfaceText = "Play against other Bot",
+                InterfaceText = "Play against AI",
                 InterfaceFontSize = InterfaceObject.FontSize.Small,
                 PositionY = ControlVariables.PreferredBackBufferWidth / 5
             };
@@ -55,7 +55,7 @@ namespace TurboPong.Screens
             againstBot.ShadowIfHoveredOver = true;
             againstBot.OnClick += () =>
             {
-                againstBot.TextColor = Color.Red;
+                game.LoadGameScreen(true);
             };
 
             BackButton = new InterfaceObject(game)

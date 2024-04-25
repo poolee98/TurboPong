@@ -8,6 +8,10 @@ namespace TurboPong.Controller
         public Position PlayerPosition { get; set; }
         public PlayerType playerType { get; }
         public Vector2 BatPosition { get; }
+
+        public int PlayerIndex { get; set; }
+
+        public void ResetPosition();
         
         public enum Position
         {
@@ -22,6 +26,8 @@ namespace TurboPong.Controller
         }
 
         public void Initialize();
+        public void LoadContent();
+        public void UnloadContent();
         public void Update(GameTime gameTime);
 
     }

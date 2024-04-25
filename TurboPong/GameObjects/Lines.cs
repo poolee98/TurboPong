@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 using TurboPong.Globals;
 
 namespace TurboPong.GameObjects
@@ -13,7 +12,7 @@ namespace TurboPong.GameObjects
         private Rectangle body;
         private Vector2 position;
 
-        List<Rectangle> lines = new List<Rectangle>();
+        private int linesOnScreen;
 
         public Lines(Game game) : base(game) { }
 
@@ -22,7 +21,8 @@ namespace TurboPong.GameObjects
             body.Width = 5;
             body.Height = 10;
             body.X = ControlVariables.PreferredBackBufferWidth / 2 - 3;
-            body.Y = 0;
+            body.Y = 1;
+            linesOnScreen = ControlVariables.PreferredBackBufferHeight / body.Height;
 
             base.Initialize();
         }
@@ -35,7 +35,15 @@ namespace TurboPong.GameObjects
         public override void Draw(GameTime gameTime)
         {
             game.spriteBatch.Begin();
-            game.spriteBatch.Draw(whitePixel, body, Color.White);
+            for (int i = 0; i <= linesOnScreen; i++)
+            {
+                if (i%2 == 0)
+                {
+                    game.spriteBatch.Draw(whitePixel, body, Color.White);
+                    body.Y += (3 * body.Height);
+                }
+            }
+            body.Y = 1;
             game.spriteBatch.End();
 
             base.Draw(gameTime);

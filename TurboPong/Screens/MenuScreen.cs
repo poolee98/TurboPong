@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended.Screens;
 using TurboPong.Globals;
 
@@ -14,6 +13,8 @@ namespace TurboPong.Screens
         private InterfaceObject StartButton;
         private InterfaceObject SettingsButton;
         private InterfaceObject ExitButton;
+
+        private Song MenuTheme;
 
         private bool IsMenuScreenLoaded = true;
 
@@ -56,7 +57,7 @@ namespace TurboPong.Screens
             SettingsButton.IsClickable = true;
             SettingsButton.OnClick += () =>
             {
-                SettingsButton.TextColor = Color.Red;
+                game.LoadSettingsScreen();
             };
             // <--------------------------------- Exit Button ---------------------------------> //
             ExitButton = new InterfaceObject(game)
@@ -68,21 +69,23 @@ namespace TurboPong.Screens
             ExitButton.PositionX = (ControlVariables.PreferredBackBufferWidth / 2) - ((int)ExitButton.Size.Width / 2);
             ExitButton.ShadowIfHoveredOver = true;
             ExitButton.IsClickable = true;
-            ExitButton.OnClick += () => 
-            { 
+            ExitButton.OnClick += () =>
+            {
                 game.Exit();
             };
+
             base.Initialize();
         }
 
         public override void LoadContent()
         {
+            MenuTheme = game.Content.Load<Song>("MenuTheme");
             base.LoadContent();
         }
 
         public override void UnloadContent()
         {
-
+            //game.Content.UnloadAsset("MenuTheme");
             base.UnloadContent();
         }
 

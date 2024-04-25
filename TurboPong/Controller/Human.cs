@@ -63,6 +63,11 @@ namespace TurboPong.Controller
             this.game = (Game1)game;
         }
 
+        public void ResetPosition()
+        {
+            bat.ResetPosition();
+        }
+
         public void Initialize()
         {
             bat = new Bat(game);

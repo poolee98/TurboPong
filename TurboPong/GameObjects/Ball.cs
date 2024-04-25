@@ -1,8 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using TurboPong.Controller;
 using TurboPong.Globals;
+using AsepriteDotNet.Aseprite;
+using MonoGame.Aseprite;
 
 namespace TurboPong.GameObjects
 {
@@ -12,6 +15,7 @@ namespace TurboPong.GameObjects
 
         private Texture2D whitePixel;
         private Rectangle properBall;
+        private SoundEffect hitSoundEffect;
 
         //private int positionX, position.Y;
         private int ballWidth, ballHeight;
@@ -20,11 +24,15 @@ namespace TurboPong.GameObjects
         private IPlayer player2;
 
         private Vector2 direction;
-        private Vector2 position = new Vector2();
+        public static Vector2 position = new Vector2();
 
         private bool wasShotLeft = true;
 
         private float ballSpeed = ControlVariables.BallDefaultSpeed;
+
+        AsepriteFile explosionFile;
+        SpriteSheet explosionSpriteSheet;
+        AnimatedSprite explosionSprite;
 
         public Ball(Game game) : base(game) { }
 
@@ -48,10 +56,11 @@ namespace TurboPong.GameObjects
 
         public void RestartPosition()
         {
+            player1.ResetPosition();
+            player2.ResetPosition();
             position.X = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
             position.Y = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
             direction = RandomPointOnMap() - position;
-
             ballSpeed = ControlVariables.BallDefaultSpeed;
         }
 
@@ -69,23 +78,70 @@ namespace TurboPong.GameObjects
         protected override void LoadContent()
         {
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
+            hitSoundEffect = game.Content.Load<SoundEffect>("Hit");
+
+            explosionFile = game.Content.Load<AsepriteFile>("Explosions");
+            explosionSpriteSheet = explosionFile.CreateSpriteSheet(game.GraphicsDevice);
+            explosionSprite = explosionSpriteSheet.CreateAnimatedSprite("Explosion");
+
             base.LoadContent();
         }
 
         protected override void UnloadContent()
         {
             game.Content.UnloadAsset("WhitePixel");
+            game.Content.UnloadAsset("Hit");
+            game.Content.UnloadAsset("Explosions");
             base.UnloadContent();
+        }
+
+        private void RegisterHit()
+        {
+            hitSoundEffect.Play();
+            direction.X = -direction.X;
+
+            if (ballSpeed < 2.0f)
+            {
+                ballSpeed *= 1.1f;
+            }
         }
 
         public override void Update(GameTime gameTime)
         {
+            explosionSprite.Update(gameTime);
+            // Upper paddle hit
+            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight / 2)) ||
+                properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight / 2)))
+            {
+                RegisterHit();
+                if (direction.Y > ControlVariables.PreferredBackBufferHeight / 2)
+                {
+                    direction.Y = -direction.Y;
+                }
+            }
+            // Lower paddle hit
+            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y + (ControlVariables.batHeight / 2), ControlVariables.batWidth, ControlVariables.batHeight / 2)) ||
+                properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y + (ControlVariables.batHeight / 2), ControlVariables.batWidth, ControlVariables.batHeight / 2)))
+            {
+                RegisterHit();    
+                if (direction.Y < ControlVariables.PreferredBackBufferHeight / 2)
+                {
+                    direction.Y = -direction.Y;
+                }
+            }
+            /* Collision v0.1
             if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)) ||
                 properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
             {
+                hitSoundEffect.Play();
                 direction.X = -direction.X;
-                ballSpeed *= 1.1f;
+
+                if (ballSpeed < 2.0f)
+                {
+                    ballSpeed *= 1.1f;
+                }   
             }
+            */
 
             // Bounce off top and bottom
             if (properBall.Y <= 0 || properBall.Y >= ControlVariables.PreferredBackBufferHeight - properBall.Height)
@@ -100,6 +156,8 @@ namespace TurboPong.GameObjects
 
             if (properBall.X <= 0)
             {
+                explosionSprite.IsVisible = true;
+                explosionSprite.Play();
                 player2.Points++;
                 RestartPosition();
             }
@@ -119,6 +177,12 @@ namespace TurboPong.GameObjects
         public override void Draw(GameTime gameTime)
         {
             game.spriteBatch.Begin();
+
+            if (explosionSprite.IsVisible)
+            {
+                game.spriteBatch.Draw(explosionSprite, new Vector2(position.X, position.Y));
+            }
+
             game.spriteBatch.Draw(whitePixel, properBall, Color.White);
             game.spriteBatch.End();
             base.Draw(gameTime);

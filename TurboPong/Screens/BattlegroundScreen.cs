@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended.Screens;
 using System.Threading;
 using TurboPong.Controller;
@@ -15,9 +16,12 @@ namespace TurboPong.Screens
         private KeyboardState keyboardState;
         private KeyboardState previousKeyboardState;
 
-        private Human humanPlayerOne;
-        private Human humanPlayerTwo;
+        private Human playerOne;
+        private IPlayer playerTwo;
+        public bool isPlayerTwoBot;
         private Ball ball;
+
+        private Song battleTheme;
 
         private InterfaceObject playerOneScore;
         private InterfaceObject playerTwoScore;
@@ -34,12 +38,20 @@ namespace TurboPong.Screens
             lines = new Lines(game);
             game.AddComponent(lines);
 
-            humanPlayerOne = new Human(IPlayer.Position.Right, game);
-            humanPlayerOne.Initialize();
+            playerOne = new Human(IPlayer.Position.Right, game);
+            playerOne.Initialize();
 
-            humanPlayerTwo = new Human(IPlayer.Position.Left, game);
-            humanPlayerTwo.PlayerIndex = 2;
-            humanPlayerTwo.Initialize();
+            if (isPlayerTwoBot)
+            {
+                playerTwo = new Bot(IPlayer.Position.Left, game);
+            }
+            else
+            {
+                playerTwo = new Human(IPlayer.Position.Left, game);
+            }
+            
+            playerTwo.PlayerIndex = 2;
+            playerTwo.Initialize();
 
             playerOneScore = new InterfaceObject(game)
             {
@@ -58,17 +70,24 @@ namespace TurboPong.Screens
             playerTwoScore.PositionX = 10;
 
 
-            ball = new GameObjects.Ball(game);
-            ball.SetPlayersToColide(humanPlayerTwo, humanPlayerOne);
+            ball = new Ball(game);
+            ball.SetPlayersToColide(playerTwo, playerOne);
   
             base.Initialize();
         }
 
         public override void LoadContent()
         {
+            battleTheme = game.Content.Load<Song>("BattleTheme");
+            MediaPlayer.Volume = 0.6f;
+            if (ControlVariables.isMusicPlaying)
+            {
+                MediaPlayer.Play(battleTheme);
+            }
+            
             game.AddComponent(ball);
-            humanPlayerOne.LoadContent();
-            humanPlayerTwo.LoadContent();
+            playerOne.LoadContent();
+            playerTwo.LoadContent();
             base.LoadContent();
         }
 
@@ -76,8 +95,8 @@ namespace TurboPong.Screens
         {
             game.RemoveComponent(ball);
             game.RemoveComponent(lines);
-            humanPlayerOne.UnloadContent();
-            humanPlayerTwo.UnloadContent();
+            playerOne.UnloadContent();
+            playerTwo.UnloadContent();
             base.UnloadContent();
         }
 
@@ -103,18 +122,18 @@ namespace TurboPong.Screens
 
             previousKeyboardState = keyboardState;
 
-            playerOneScore.InterfaceText = "Score " + humanPlayerOne.Points;
-            playerTwoScore.InterfaceText = "Score " + humanPlayerTwo.Points;
+            playerOneScore.InterfaceText = "Score " + playerOne.Points;
+            playerTwoScore.InterfaceText = "Score " + playerTwo.Points;
 
-            humanPlayerOne.Update(gameTime);
-            humanPlayerTwo.Update(gameTime);
+            playerOne.Update(gameTime);
+            playerTwo.Update(gameTime);
             playerOneScore.Update(gameTime);
             playerTwoScore.Update(gameTime);
         }
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            game.spriteBatch.Begin();
+            game.spriteBatch.Begin(SpriteSortMode.FrontToBack);
             playerOneScore.Draw(gameTime);
             playerTwoScore.Draw(gameTime);
             game.spriteBatch.End();

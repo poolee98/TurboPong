@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
 using System;
@@ -14,15 +15,23 @@ namespace TurboPong
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch;
 
+        private Song MenuTheme;
+
         // <------------------------------------------- Screen management -------------------------------------------> //
         public ScreenManager screenManager = new ScreenManager();
 
         private Screens.BattlegroundScreen battlegroundScreen;
         private Screens.MenuScreen menuScreen;
         private Screens.GametypeScreen gameTypeScreen;
+        private Screens.SettingsScreen settingsScreen;
 
-        public void LoadGameScreen()
+        private bool isGameLoaded = true;
+
+        public void LoadGameScreen(bool againstAI)
         {
+            MediaPlayer.Stop();
+            battlegroundScreen.isPlayerTwoBot = againstAI;
+            isGameLoaded = true;
             screenManager.LoadScreen(battlegroundScreen, new ExpandTransition(GraphicsDevice, Color.Black));
         }
 
@@ -31,9 +40,26 @@ namespace TurboPong
             screenManager.LoadScreen(gameTypeScreen, new FadeTransition(GraphicsDevice, Color.SlateGray));
         }
 
+        public void LoadSettingsScreen()
+        {
+            screenManager.LoadScreen(settingsScreen, new FadeTransition(GraphicsDevice, Color.SlateGray));
+        }
+
         public void LoadMenuScreen()
         {
-            screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.Black));
+            if (isGameLoaded)
+            {
+                if (ControlVariables.isMusicPlaying)
+                {
+                    MediaPlayer.Play(MenuTheme);
+                }
+                isGameLoaded = false;
+                screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.Black));
+            }
+            else
+            {
+                screenManager.LoadScreen(menuScreen, new FadeTransition(GraphicsDevice, Color.SlateGray));
+            }
         }
         // <------------------------------------------- End of screen management -------------------------------------------> //
 
@@ -73,15 +99,18 @@ namespace TurboPong
             battlegroundScreen = new Screens.BattlegroundScreen(this);
             gameTypeScreen = new Screens.GametypeScreen(this);
             menuScreen = new Screens.MenuScreen(this);
+            settingsScreen = new Screens.SettingsScreen(this);
             AddComponent(screenManager);
-            LoadMenuScreen();
    
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);  
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            MenuTheme = Content.Load<Song>("MenuTheme");
+
+            LoadMenuScreen();
         }
 
         protected override void Update(GameTime gameTime)

@@ -20,6 +20,11 @@ namespace TurboPong.GameObjects
             get { return new Vector2(rectangle.X, positionY); }
         }
 
+        public void ResetPosition()
+        {
+            positionY = (ControlVariables.PreferredBackBufferHeight / 2) - (ControlVariables.batHeight / 2);
+        }
+
         public enum MoveDirection
         {
             Up,

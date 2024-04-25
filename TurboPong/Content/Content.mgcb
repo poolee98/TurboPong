@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\..\..\..\..\.nuget\packages\monogame.aseprite\6.0.3\content\Monogame.Aseprite.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -43,6 +44,42 @@
 
 #begin ARCADECLASSIC.TTF
 /copy:ARCADECLASSIC.TTF
+
+#begin BattleTheme.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:BattleTheme.mp3
+
+#begin Explosions.aseprite
+/importer:AsepriteFileContentImporter
+/processor:AsepriteFileContentProcessor
+/processorParam:PremultiplyAlpha=True
+/build:Explosions.aseprite
+
+#begin Explosions.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Explosions.png
+
+#begin Hit.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Hit.wav
+
+#begin MenuTheme.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:MenuTheme.mp3
 
 #begin WhitePixel.png
 /importer:TextureImporter
