@@ -30,9 +30,15 @@ namespace TurboPong.GameObjects
 
         private float ballSpeed = ControlVariables.BallDefaultSpeed;
 
-        AsepriteFile explosionFile;
-        SpriteSheet explosionSpriteSheet;
-        AnimatedSprite explosionSprite;
+        private AsepriteFile explosionFile;
+        private SpriteSheet explosionSpriteSheet;
+        private AnimatedSprite explosionSprite;
+        private float explosionX, explosionY;
+        private bool isExplosionPlaying = false;
+
+        private bool isWaiting = false;
+
+        private Delay Timer = new Delay(500.0);
 
         public Ball(Game game) : base(game) { }
 
@@ -54,7 +60,18 @@ namespace TurboPong.GameObjects
             return new Vector2(x, y);
         }
 
-        public void RestartPosition()
+        public void RestartPosition(GameTime gameTime)
+        {
+            isWaiting = true;
+
+            Timer.Wait(gameTime, () =>
+            {
+                StartPosition();
+                isWaiting = false;
+            });
+        }
+
+        public void StartPosition()
         {
             player1.ResetPosition();
             player2.ResetPosition();
@@ -64,13 +81,30 @@ namespace TurboPong.GameObjects
             ballSpeed = ControlVariables.BallDefaultSpeed;
         }
 
+        private void EndExplosion(AnimatedSprite sprite)
+        {
+            isExplosionPlaying = false;
+            sprite.Stop();
+            sprite.IsVisible = false;         
+        }
+
+        private void StartExplosion()
+        {
+            hitSoundEffect.Play();
+            explosionX = position.X;
+            explosionY = position.Y;
+            explosionSprite.IsVisible = true;
+            isExplosionPlaying = true;
+            explosionSprite.Play(1);
+        }
+
         public override void Initialize()
         {
             ballHeight = ballWidth = ControlVariables.BallSize;
             properBall = new Rectangle();
             properBall.Width = ballWidth;
             properBall.Height = ballHeight;
-            RestartPosition();
+            StartPosition();
             player2.Points = -1;
             base.Initialize();
         }
@@ -83,6 +117,8 @@ namespace TurboPong.GameObjects
             explosionFile = game.Content.Load<AsepriteFile>("Explosions");
             explosionSpriteSheet = explosionFile.CreateSpriteSheet(game.GraphicsDevice);
             explosionSprite = explosionSpriteSheet.CreateAnimatedSprite("Explosion");
+            explosionSprite.IsVisible = true;
+            explosionSprite.OnAnimationEnd = EndExplosion;
 
             base.LoadContent();
         }
@@ -156,20 +192,29 @@ namespace TurboPong.GameObjects
 
             if (properBall.X <= 0)
             {
-                explosionSprite.IsVisible = true;
-                explosionSprite.Play();
+                StartExplosion();
                 player2.Points++;
-                RestartPosition();
+                RestartPosition(gameTime);
             }
 
             if (properBall.X >= ControlVariables.PreferredBackBufferWidth)
             {
+                StartExplosion();
                 player1.Points++;
-                RestartPosition();
+                RestartPosition(gameTime);
             }
 
-            properBall.X = (int)position.X;
-            properBall.Y = (int)position.Y;
+            if (isWaiting)
+            {
+                properBall.X = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
+                properBall.Y = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
+            } 
+            else
+            {
+                properBall.X = (int)position.X;
+                properBall.Y = (int)position.Y;
+            }
+
 
             base.Update(gameTime);
         }
@@ -178,9 +223,9 @@ namespace TurboPong.GameObjects
         {
             game.spriteBatch.Begin();
 
-            if (explosionSprite.IsVisible)
+            if (isExplosionPlaying)
             {
-                game.spriteBatch.Draw(explosionSprite, new Vector2(position.X, position.Y));
+                game.spriteBatch.Draw(explosionSprite, new Vector2(explosionX - (explosionSprite.Width / 2), explosionY  - (explosionSprite.Height / 2)));
             }
 
             game.spriteBatch.Draw(whitePixel, properBall, Color.White);

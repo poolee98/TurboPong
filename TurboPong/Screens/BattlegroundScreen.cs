@@ -117,7 +117,7 @@ namespace TurboPong.Screens
 
             if (WasKeyPressed(Keys.Space))
             {
-                ball.RestartPosition();
+                ball.StartPosition();
             }
 
             previousKeyboardState = keyboardState;
@@ -133,7 +133,7 @@ namespace TurboPong.Screens
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            game.spriteBatch.Begin(SpriteSortMode.FrontToBack);
+            game.spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             playerOneScore.Draw(gameTime);
             playerTwoScore.Draw(gameTime);
             game.spriteBatch.End();
