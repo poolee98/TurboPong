@@ -53,18 +53,21 @@ namespace TurboPong.GameObjects
 
         public void Move(MoveDirection moveDirection, GameTime gameTime)
         {
-            if (moveDirection == MoveDirection.Up)
+            if (!ControlVariables.isGamePaused)
             {
-                if (positionY > 20)
+                if (moveDirection == MoveDirection.Up)
                 {
-                    positionY -= ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                }            
-            }
-            else
-            {
-                if ((positionY + batHeight) < (ControlVariables.PreferredBackBufferHeight - 20))
+                    if (positionY > 20)
+                    {
+                        positionY -= ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    }
+                }
+                else
                 {
-                    positionY += ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if ((positionY + batHeight) < (ControlVariables.PreferredBackBufferHeight - 20))
+                    {
+                        positionY += ControlVariables.BatDefaultSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    }
                 }
             }
         }

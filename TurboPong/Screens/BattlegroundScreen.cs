@@ -26,6 +26,7 @@ namespace TurboPong.Screens
         private InterfaceObject playerOneScore;
         private InterfaceObject playerTwoScore;
 
+
         private Lines lines;
 
         public BattlegroundScreen(Game game) : base(game) { }
@@ -136,6 +137,7 @@ namespace TurboPong.Screens
             game.spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             playerOneScore.Draw(gameTime);
             playerTwoScore.Draw(gameTime);
+
             game.spriteBatch.End();
         }
     }

@@ -12,6 +12,7 @@ namespace TurboPong.Globals
         public static float BatDefaultSpeed = 0.4f;
         public static int batWidth = 25;
         public static int batHeight = 100;
-        public static bool isMusicPlaying = false;
+        public static bool isMusicPlaying = true;
+        public static bool isGamePaused = false;
     }
 }

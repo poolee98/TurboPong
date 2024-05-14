@@ -36,9 +36,12 @@ namespace TurboPong.GameObjects
         private float explosionX, explosionY;
         private bool isExplosionPlaying = false;
 
-        private bool isWaiting = false;
+        //private bool isWaiting = false;
+        //private Delay Timer = new Delay(500.0);
 
-        private Delay Timer = new Delay(500.0);
+        private InterfaceObject winnerCall;
+
+        private bool isMatchWon = false;
 
         public Ball(Game game) : base(game) { }
 
@@ -62,6 +65,8 @@ namespace TurboPong.GameObjects
 
         public void RestartPosition(GameTime gameTime)
         {
+            StartPosition();
+            /*
             isWaiting = true;
 
             Timer.Wait(gameTime, () =>
@@ -69,6 +74,7 @@ namespace TurboPong.GameObjects
                 StartPosition();
                 isWaiting = false;
             });
+            */
         }
 
         public void StartPosition()
@@ -104,6 +110,15 @@ namespace TurboPong.GameObjects
             properBall = new Rectangle();
             properBall.Width = ballWidth;
             properBall.Height = ballHeight;
+
+            winnerCall = new InterfaceObject(game)
+            {
+                InterfaceFontSize = InterfaceObject.FontSize.Giga,
+                TextColor = Color.Yellow,
+                PositionY = ControlVariables.PreferredBackBufferHeight / 3
+            };
+            winnerCall.PositionX = (ControlVariables.PreferredBackBufferWidth / 2) - (int)(winnerCall.Size.Width / 2);
+
             StartPosition();
             player2.Points = -1;
             base.Initialize();
@@ -113,7 +128,6 @@ namespace TurboPong.GameObjects
         {
             whitePixel = game.Content.Load<Texture2D>("WhitePixel");
             hitSoundEffect = game.Content.Load<SoundEffect>("Hit");
-
             explosionFile = game.Content.Load<AsepriteFile>("Explosions");
             explosionSpriteSheet = explosionFile.CreateSpriteSheet(game.GraphicsDevice);
             explosionSprite = explosionSpriteSheet.CreateAnimatedSprite("Explosion");
@@ -142,6 +156,11 @@ namespace TurboPong.GameObjects
             }
         }
 
+        private void ShowWinner()
+        {
+
+        }
+
         public override void Update(GameTime gameTime)
         {
             explosionSprite.Update(gameTime);
@@ -165,19 +184,6 @@ namespace TurboPong.GameObjects
                     direction.Y = -direction.Y;
                 }
             }
-            /* Collision v0.1
-            if (properBall.Intersects(new Rectangle((int)player1.BatPosition.X, (int)player1.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)) ||
-                properBall.Intersects(new Rectangle((int)player2.BatPosition.X, (int)player2.BatPosition.Y, ControlVariables.batWidth, ControlVariables.batHeight)))
-            {
-                hitSoundEffect.Play();
-                direction.X = -direction.X;
-
-                if (ballSpeed < 2.0f)
-                {
-                    ballSpeed *= 1.1f;
-                }   
-            }
-            */
 
             // Bounce off top and bottom
             if (properBall.Y <= 0 || properBall.Y >= ControlVariables.PreferredBackBufferHeight - properBall.Height)
@@ -194,17 +200,37 @@ namespace TurboPong.GameObjects
             {
                 StartExplosion();
                 player2.Points++;
-                RestartPosition(gameTime);
+
+                if (player2.Points < 3)
+                {
+                    RestartPosition(gameTime);
+                }
+                else
+                {
+                    ControlVariables.isGamePaused = true;
+                    isMatchWon = true;
+                }
+                
             }
 
             if (properBall.X >= ControlVariables.PreferredBackBufferWidth)
             {
                 StartExplosion();
                 player1.Points++;
-                RestartPosition(gameTime);
+
+                if (player1.Points < 3)
+                {
+                    RestartPosition(gameTime);
+                }
+                else
+                {
+                    ControlVariables.isGamePaused = true;
+                    isMatchWon = true;
+                }
+                
             }
 
-            if (isWaiting)
+            if (ControlVariables.isGamePaused)
             {
                 properBall.X = (ControlVariables.PreferredBackBufferWidth / 2) - (ballWidth / 2);
                 properBall.Y = (ControlVariables.PreferredBackBufferHeight / 2) - (ballHeight / 2);
@@ -215,6 +241,7 @@ namespace TurboPong.GameObjects
                 properBall.Y = (int)position.Y;
             }
 
+            winnerCall.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -222,13 +249,19 @@ namespace TurboPong.GameObjects
         public override void Draw(GameTime gameTime)
         {
             game.spriteBatch.Begin();
-
             if (isExplosionPlaying)
             {
-                game.spriteBatch.Draw(explosionSprite, new Vector2(explosionX - (explosionSprite.Width / 2), explosionY  - (explosionSprite.Height / 2)));
+                game.spriteBatch.Draw(explosionSprite, new Vector2(explosionX - (explosionSprite.Width / 2), explosionY - (explosionSprite.Height / 2)));
+            }
+            game.spriteBatch.Draw(whitePixel, properBall, Color.White);
+
+            if (isMatchWon)
+            {
+                string playerWon = player1.Points > player2.Points ? "Player One" : "Player Two";
+                winnerCall.InterfaceText = playerWon + " won!";
+                winnerCall.Draw(gameTime);
             }
 
-            game.spriteBatch.Draw(whitePixel, properBall, Color.White);
             game.spriteBatch.End();
             base.Draw(gameTime);
         }

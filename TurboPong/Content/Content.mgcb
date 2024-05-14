@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\..\..\..\..\.nuget\packages\monogame.aseprite\6.0.3\content\Monogame.Aseprite.Content.Pipeline.dll
+/reference:C:\Users\pulka\.nuget\packages\monogame.aseprite\6.0.3\content\Monogame.Aseprite.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
